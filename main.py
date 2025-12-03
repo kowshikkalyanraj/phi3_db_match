@@ -32,10 +32,10 @@ if __name__ == "__main__":
     # If you want to run batch processing:
     from argparse import ArgumentParser
     p = ArgumentParser()
-    p.add_argument("--batch", action="store_true", help="Process input CSV in batch mode")
+    p.add_argument("--interactive", action="store_true", help="Run in interactive mode")
     args = p.parse_args()
-    if args.batch:
-        process_all()
-    else:
+    if args.interactive:
         interactive()
+    else:
+        process_all()
             

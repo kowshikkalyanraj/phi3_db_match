@@ -42,13 +42,19 @@ def process_raw_text(raw_text: str, label_index: int = None) -> Dict[str, Any]:
 
     recipient_name = ai_out.get("recipient_name") or ""
     address = ai_out.get("address") or ""
+    verification_status = ai_out.get("verification_status", "unknown")
+    candidate_id = ai_out.get("candidate_id", "")
 
     print("✅ Extracted with AI")
     print(f"⏱️  AI Inference Time: {elapsed:.2f}s")
     print(f"👤 Recipient Name: {recipient_name}")
     print(f"🏠 Address: {address}")
+    print(f"🔒 Verification Status: {verification_status}")
+    if candidate_id:
+        print(f"🆔 Candidate ID: {candidate_id}")
 
-    # Save into database
+    # Save into database (only if verified or if we want to save nulls? User said print nulls)
+    # If verification failed, recipient_name and address are None/Empty.
     save_result(raw_text, recipient_name, address)
     print("💾 Saved to database")
 
@@ -56,7 +62,9 @@ def process_raw_text(raw_text: str, label_index: int = None) -> Dict[str, Any]:
         "source": "ai",
         "recipient_name": recipient_name,
         "address": address,
-        "inference_time": elapsed
+        "inference_time": elapsed,
+        "verification_status": verification_status,
+        "candidate_id": candidate_id
     }
 
 
@@ -79,14 +87,16 @@ def process_all():
                 "raw_text": raw_text,
                 "recipient_name": result.get("recipient_name") or "",
                 "address": result.get("address") or "",
-                "source": result.get("source")
+                "source": result.get("source"),
+                "verification_status": result.get("verification_status", ""),
+                "candidate_id": result.get("candidate_id", "")
             })
 
             print("-" * 40)
 
     # Write output CSV
     with open(OUTPUT_CSV, "w", newline='', encoding='utf-8') as outfile:
-        fieldnames = ["raw_text", "recipient_name", "address", "source"]
+        fieldnames = ["raw_text", "recipient_name", "address", "source", "verification_status", "candidate_id"]
         writer = csv.DictWriter(outfile, fieldnames=fieldnames)
         writer.writeheader()
         for r in rows:

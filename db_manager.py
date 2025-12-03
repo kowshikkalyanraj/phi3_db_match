@@ -37,7 +37,7 @@ def get_existing_result(raw_text: str, db_path: str = DB_PATH) -> Optional[Dict[
     # Consider None or empty -> treat as missing to trigger AI
     def valid(s):
         return s is not None and str(s).strip() != ""
-    if not valid(recipient_name) and not valid(address):
+    if not valid(recipient_name) or not valid(address):
         return None
     return {"id": _id, "recipient_name": recipient_name, "address": address}
 
